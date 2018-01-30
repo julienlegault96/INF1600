@@ -1,0 +1,104 @@
+\documentclass{article}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\graphicspath{{image/}}
+\usepackage{tikz}
+\usepackage{listing}
+\usepackage{forest}
+\usepackage{titlepage}
+\geometry{
+  right=10mm,
+  left=10mm
+}
+
+
+\title{TP5}
+\subtitle{Memoire Cache}
+\dateremise{le 4 d\'ecembre}
+\author{Julien Legault, 1847125}{Billy Bouchard, 1850477}{B1}
+\prof{Abdellatif Amrani}
+
+\begin{document}
+\maketitle
+
+\section{Memoire Cache}
+\begin{enumerate}
+	\item pour le direct : 6 bit pour le tag $|$ 10 bit pour l'ensemble $|$ 4 bits pour l'octet \\
+	      pour le 2 bloc : 7 bit pour le tag $|$ 9 bit pour l'ensemble  $|$ 4 bits pour l'octet \\
+	      pour le 4 bloc : 8 bit pour le tag $|$ 8 bit pour l'ensemble  $|$ 4 bits pour l'octet \\
+
+	\item	\begin{tabular}{|c||*{3}{*{4}{c|}|}}
+	      \hline
+	      & \multicolumn{4}{c||}{Direct} & \multicolumn{4}{c||}{2 blocs} & \multicolumn{4}{c||}{4 blocs}  \\ \hline
+	      Acc\`es           & Tag(6) & Set(10) & Hit & W-B & Tag(7) & Set(9) & Hit & W-B & Tag (8) & Set(8)            & Hit & W-B \\ \hline
+	      \verb|WR 0x5EF1D| & 17     & 2F1     &     &     & 2F     & 0F1    &     &     & 5E      & F1                &     &     \\ \hline
+	      \verb|WR 0x19C7C| & 06     & 1C7     &     &     & 0C     & 1C7    &     &     & 19      & C7                &     &     \\ \hline
+	      \verb|RD 0x5EF1B| & 17     & 2F1     &  x  &     & 2F     & 0F1    &   x  &     & 5E      & F1                & x    &     \\ \hline
+	      \verb|RD 0x8CDB0| & 23     & 0DB     &     &     & 4E     & 0DB    &     &     & 8C      & DB                &     &     \\ \hline
+	      \verb|WR 0x3CDB3| & 0F     & 0DB     &     &     & 1E     & 0DB    &     &     & 3C      & DB                &     &     \\ \hline
+	      \verb|WR 0x5EF15| & 17     & 2F1     &  x  &     & 2F     & 0F1    &  x   &     & 5E      & F1                &  x   &     \\ \hline
+	      \verb|RD 0x68DBF| & 1A     & 0DB     &     &  x    & 34     & 0DB    &     &     & 68      & DB                &     &     \\ \hline
+	      \verb|WR 0xCAF1C| & 32     & 2F1     &     &  x    & 65     & 0F1    &     &     & CA      & F1                &     &     \\ \hline
+	      \verb|RD 0x39C7E| & 0E     & 1C7     &     &   x  & 1C     & 1C7    &     &     & 39      & C7                &     &     \\ \hline
+	      \verb|RD 0xCAF1A| & 32     & 2F1     &  x  &     & 65     & 0F1    &  x   &     & CA      & F1                &  x   &     \\ \hline
+	\end{tabular}
+	\item
+\end{enumerate}
+\small
+\begin{tabular}{c|*{10}{c}|c|}
+	    & \verb$17|2F1|D$ & \verb$06|1C7|C$ & \verb$17|2F1|B$ & \verb$23|0DB|0$ & \verb$0F|0DB|3$ & \verb$17|2F1|5$ & \verb$1A|0DB|F$ & \verb$32|2F1|C$ & \verb$0E|1C7|E$ & \verb$32|2F1|A$ & Tags fin \\
+	Mem & W               & W               & R               & R               & W               & W               & R               & W               & R               & R               &          \\ \hline
+	2f1 & 17              &                 & 17              &                 &                 & 17              &                 & 32              &                 & 32              & 32       \\ \hline
+	1c7 &                 & 6               &                 &                 &                 &                 &                 &                 & 0E              &                 & 0E       \\ \hline
+	0db &                 &                 &                 & 23              & 0F              &                 & 1A              &                 &                 &                 & 1A       \\ \hline
+\end{tabular}
+\vspace{5mm}\\
+\begin{tabular}{c|*{10}{c}|c|}
+	    & \verb$2F|0F1|D$ & \verb$0C|1C7|C$ & \verb$2F|0F1|B$ & \verb$4E|0DB|0$ & \verb$1E|0DB|3$ & \verb$2F|0F1|5$ & \verb$34|0DB|F$ & \verb$65|0F1|C$ & \verb$1C|1C7|E$ & \verb$65|0F1|A$ & Tags fin \\
+	Mem & W               & W               & R               & R               & W               & W               & R               & W               & R               & R               &          \\ \hline
+	0F1 & 2F              &                 & 2F              &                 &                 & 2F              &                 &                 &                 &                 & 17       \\
+	    &                 &                 &                 &                 &                 &                 &                 & 65              &                 & 65              & 32       \\ \hline
+	1C7 &                 & C               &                 &                 &                 &                 &                 &                 &                 &                 & C        \\
+	    &                 &                 &                 &                 &                 &                 &                 &                 & 0E              &                 & 0E       \\ \hline
+	0DB &                 &                 &                 & 23              &                 &                 & 1A              &                 &                 &                 & 1A       \\
+	    &                 &                 &                 &                 & 0F              &                 &                 &                 &                 &                 & 0F       \\ \hline
+\end{tabular}
+\vspace{5mm}\\
+\begin{tabular}{c|*{10}{c}|c|}
+	    & \verb$5E|F1|D$ & \verb$19|C7|C$ & \verb$5E|F1|B$ & \verb$8C|DB|0$ & \verb$3C|DB|3$ & \verb$5E|F1|5$ & \verb$68|DB|F$ & \verb$CA|F1|C$ & \verb$39|C7|E$ & \verb$CA|F1|A$ & Tags fin \\
+	Mem & W              & W              & R              & R              & W              & W              & R              & W              & R              & R              &          \\ \hline
+	F1  & 5E             &                & 5E             &                &                & 5E             &                &                &                &                & 5E       \\
+	    &                &                &                &                &                &                &                & CA             &                & CA             & CA       \\
+	    &                &                &                &                &                &                &                &                &                &                &          \\
+	    &                &                &                &                &                &                &                &                &                &                &          \\ \hline
+	C7  &                & 19             &                &                &                &                &                &                &                &                & 19       \\
+	    &                &                &                &                &                &                &                &                & 39             &                & 39       \\
+	    &                &                &                &                &                &                &                &                &                &                &          \\
+	    &                &                &                &                &                &                &                &                &                &                &          \\ \hline
+	DB  &                &                &                & 8C             &                &                &                &                &                &                & 8C       \\
+	    &                &                &                &                & 3C             &                &                &                &                &                & 3C       \\
+	    &                &                &                &                &                &                & 68             &                &                &                & 68       \\
+	    &                &                &                &                &                &                &                &                &                &                &          \\ \hline
+\end{tabular}
+
+
+\begin{enumerate}
+	\setcounter{enumi}{3}
+	\item  Calclul du temps d'acces effectif de la cache. \\
+	      Temps acces effectif = h tp + (1-h)  ts \\
+	      Placement direct : 3/10r x 8ns + 7/10e x 100ns + 3/10w-b x 100ns = 102,4ns \\
+	      Associative par ensembles de 2 = 3/10r x 8ns + 7/10e x 100ns = 72,4ns \\
+	      Associative par ensembles de 4 = 3/10r x 8ns + 7/10e x 100ns = 72,4ns \\
+	      ou r representent les reussites a la cache et e les echecs. \\
+
+	\item  Les donn\`ees auraient \`et\`e s\`epar\`ee de la sorte : 18 | 4, soit 18 bit pour le tag et
+	      4 bits pour l octet. En effet, ce mode de placement permet de mettre le bloc n importe ou
+	      il y a de la place dans la cache et ne prend pas une partie de l'adresse pour sp\`ecifier l'ensemble.
+
+\end{enumerate}
+ex
+
+
+
+\end{document}
